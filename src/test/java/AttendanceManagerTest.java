@@ -17,7 +17,6 @@ public class AttendanceManagerTest {
         assertEquals(142, students.get("Marco").getMinutes());
         assertEquals(2, students.get("Marco").getDays());
     }
-
     @Test
     public void testPrintStudentAttendance() {
         Map<String, Attendance> students = new HashMap<>();
@@ -29,5 +28,27 @@ public class AttendanceManagerTest {
         String output= AttendanceManager.printStudentAttendance(students);
 
         assertEquals(expectedOutput, output);
+    }
+    @Test
+    public void testStudentDoesNotExist() {
+        Map<String, Attendance> students = new HashMap<>();
+        AttendanceManager.processCommand(students, "Presence Marco 1 09:02 10:17 R100");
+        assertEquals(0, students.size());
+    }
+
+    @Test
+    public void testLess5MinutesDifference() {
+        Map<String, Attendance> students = new HashMap<>();
+        AttendanceManager.processCommand(students, "Student Marco");
+        AttendanceManager.processCommand(students, "Presence Marco 1 09:02 09:04 R100");
+        assertEquals(0, students.get("Marco").getMinutes());
+    }
+
+    @Test
+    public void testEndBeforeStart() {
+        Map<String, Attendance> students = new HashMap<>();
+        AttendanceManager.processCommand(students, "Student Marco");
+        AttendanceManager.processCommand(students, "Presence Marco 1 09:02 08:04 R100");
+        assertEquals(0, students.get("Marco").getMinutes());
     }
 }
