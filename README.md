@@ -38,7 +38,7 @@ Pasos:
     - Para el comando "Presence" se verifica si el estudiante existe y se actualiza su seguimiento de asistencias siguiendo las reglas de negocio como: Omitir asistencias de menos de 5 minutos, validar que la hora de entrada sea antes de la hora de salida, etc.
 
 Por último, ya que no se específica como validar los días de la semana, decidí hacerlo de la siguiente manera:
-   - Si el último día registrado es diferente al día del registro, se suma un día de asistencia.
+   - Si el último día registrado es diferente al día del registro que se está validando, se suma un día de asistencia.
 
 Muchas gracias por la oportunidad de participar en este proceso de selección.
 
