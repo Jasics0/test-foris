@@ -2,10 +2,10 @@ package org.foris;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
+import java.util.*;
 
 public class AttendanceManager {
-    public static void processCommand(Map<String, Attendance> students, String line) {
+    public static void processCommand(Map<String, Map<String, Attendance>> registers, ArrayList<String> studentsNames, String line) {
         String[] parts = line.split(" ");
 
         String command = parts[0].toLowerCase();
@@ -13,14 +13,14 @@ public class AttendanceManager {
 
         switch (command) {
             case "student":
-                students.put(student, new Attendance());
+                studentsNames.add(student);
                 break;
             case "presence":
-                if (!students.containsKey(student)) {
+                if (!studentsNames.contains(student)) {
                     System.out.println("Error: El estudiante " + student + " no existe.");
                     return;
                 }
-                processPresenceCommand(students, parts, student);
+                processPresenceCommand2(registers, parts, student);
                 break;
             default:
                 System.out.println("Comando no reconocido.");
@@ -53,14 +53,42 @@ public class AttendanceManager {
         }
     }
 
-    public static String printStudentAttendance(Map<String, Attendance> students) {
+    private static void processPresenceCommand2(Map<String, Map<String, Attendance>> registers, String[] parts, String student) {
+        String room = parts[5];
+        Map<String, Attendance> students;
+        if (!registers.containsKey(room)) {
+            students = new HashMap<>();
+            students.put(student, new Attendance());
+            registers.put(room, students);
+        } else {
+            if (registers.get(room).containsKey(student)) {
+                students = registers.get(room);
+            } else {
+                students = registers.get(room);
+                students.put(student, new Attendance());
+            }
+        }
+
+        processPresenceCommand(students, parts, student);
+        registers.put(room, students);
+    }
+
+    public static String printStudentAttendance(Map<String, Map<String, Attendance>> registers) {
 
         StringBuilder output = new StringBuilder();
 
-        for (Map.Entry<String, Attendance> entry : students.entrySet()) {
-            output.append(String.format("%s: %d minutes", entry.getKey(), entry.getValue().getMinutes()));
-            output.append((entry.getValue().getDays() > 0) ? String.format(" in %d days", entry.getValue().getDays()) : "");
-            output.append("\n");
+        for (Map.Entry<String, Map<String, Attendance>> entry : registers.entrySet()) {
+            String room = entry.getKey();
+            Map<String, Attendance> students = entry.getValue();
+
+            output.append("Room ").append(room).append(":\n");
+
+            for (Map.Entry<String, Attendance> studentEntry : students.entrySet()) {
+                String student = studentEntry.getKey();
+                Attendance attendance = studentEntry.getValue();
+
+                output.append(student).append(": ").append(attendance.getMinutes()).append(" minutes in ").append(attendance.getDays()).append(" days\n");
+            }
         }
         return output.toString();
     }
